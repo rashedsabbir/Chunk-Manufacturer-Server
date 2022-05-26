@@ -52,6 +52,13 @@ async function run() {
             })
           })
 
+          app.get("/cars/:id",async(req,res)=>{
+            const id=req.params.id
+            const query={_id:ObjectId(id)}
+            const result=await cars.findOne(query)
+            res.json(result)
+          })
+
         app.get("/reviews",async(req,res)=>{
             const result=await reviews.find({}).toArray()
             res.json(result)
