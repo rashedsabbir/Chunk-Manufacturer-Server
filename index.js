@@ -33,6 +33,7 @@ async function run() {
         const database = client.db("Chunk-Manufacturer");
         const reviews = database.collection("reviews");
         const cars = database.collection("cars");
+        const purchases = database.collection("purchase");
 
         //get parts data from database
         app.get("/cars",async(req,res)=>{
@@ -63,6 +64,25 @@ async function run() {
             res.json(result)
           })
 
+          //post order to database
+          app.post("/purchase",async(req,res)=>{
+            const item=req.body
+            const purchase=await purchases.insertOne(item)
+            res.json(purchase)
+          })
+
+
+          //get orders from database
+          app.get("/purchase",async(req,res)=>{
+            let query={}
+            const email=req.query.email
+           if(email){
+           query={email:email}
+           }
+           const cursor= purchases.find(query)
+           const purchase=await cursor.toArray()
+           res.json(purchase)
+          }) 
 
           //get all reviews from database
         app.get("/reviews",async(req,res)=>{
