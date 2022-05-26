@@ -30,7 +30,27 @@ async function run() {
         await client.connect();
         const database = client.db("Chunk-Manufacturer");
         const reviews = database.collection("reviews");
+        const cars = database.collection("cars");
 
+        app.get("/cars",async(req,res)=>{
+            const count=await cars.find({}).count()
+            const page=req.query.page
+            const size=parseInt(req.query.size)
+            let products;
+            if(page){
+               products=await cars.find({}).skip(page*size).limit(size).toArray()
+      
+            }
+            else(
+             products=await cars.find({}).toArray()
+      
+            )
+            // console.log(products.length)
+            res.json({
+              count,
+              products
+            })
+          })
 
         app.get("/reviews",async(req,res)=>{
             const result=await reviews.find({}).toArray()
@@ -41,6 +61,8 @@ async function run() {
             const result=await reviews.insertOne(item)
             res.json(result)
           })
+
+          
 
           
     } finally {
