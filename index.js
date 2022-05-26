@@ -34,6 +34,7 @@ async function run() {
         const reviews = database.collection("reviews");
         const cars = database.collection("cars");
         const purchases = database.collection("purchase");
+        const userData = database.collection("userData");
 
         //get parts data from database
         app.get("/cars",async(req,res)=>{
@@ -65,6 +66,7 @@ async function run() {
           })
 
           //post order to database
+          
           app.post("/purchase",async(req,res)=>{
             const item=req.body
             const purchase=await purchases.insertOne(item)
@@ -83,6 +85,37 @@ async function run() {
            const purchase=await cursor.toArray()
            res.json(purchase)
           }) 
+
+          app.get("/user_data",async(req,res)=>{
+            const result=await userData.find({}).toArray()
+            res.json(result)
+          })
+
+          app.get("/user_data/:id",async(req,res)=>{
+            const id=req.params.id
+            const query={_id:ObjectId(id)}
+            const purchase=await userData.findOne(query)
+            res.json(purchase)
+          })
+
+
+          app.post("/user_data",async(req,res)=>{
+            const item=req.body
+            const result=await userData.insertOne(item)
+            res.json(result)
+          })
+
+
+          app.put("/user_data",async(req,res)=>{
+            const item=req.body
+            const filter={email:item.email}
+            const option={upsert:true}
+            const updateDocs={
+              $set:item
+            }
+            const result=await userData.updateOne(filter,updateDocs,option)
+            res.json(result)
+          })
 
           //get all reviews from database
         app.get("/reviews",async(req,res)=>{
