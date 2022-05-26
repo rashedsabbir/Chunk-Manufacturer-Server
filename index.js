@@ -32,6 +32,21 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 // console.log(process.env.DB_USER);
 // console.log(process.env.DB_PASS);
 
+async function verifyToken(req,res,next){
+  if(req.headers?.authorization?.startsWith("Bearer ")){
+    const idToken=req.headers.authorization.split("Bearer ")[1]
+    try{
+const decodeUser=await admin.auth().verifyIdToken(idToken)
+  req.decodeUserEmail=decodeUser.email
+  // console.log(req.decodeUserEmail)
+    }
+    catch{
+
+    }
+  }
+  next()
+}
+
 async function run() {
     try {
 
@@ -72,6 +87,46 @@ async function run() {
             res.json(result)
           })
 
+          app.post("/cars",async(req,res)=>{
+            const item=req.body
+            const result=await cars.insertOne(item)
+            res.json(result)
+          })
+
+          app.put("/cars/update/:id",async(req,res)=>{
+            const id=req.params.id
+            const filter={_id:ObjectId(id)}
+            const item=req.body
+            const updateDocs={
+            $set:{
+              name:item.name,
+              description:item.description,
+              price:item.price,
+              features:item.features,
+              equipment:item.equipment,
+              pic:item.pic,
+              brand:item.brand,
+              rating:item.rating,
+              status:item.status,
+              madeyear:item.madeyear,
+              
+              peopleRating:item.peopleRating,
+              
+              color:item.color,
+              
+            }
+            }
+            const result=await cars.updateOne(filter,updateDocs)
+            res.json(result)
+                })
+
+                app.delete("/cars/:id",async(req,res)=>{
+                  const id=req.params.id
+                const item={_id:ObjectId(id)}
+              const result=await cars.deleteOne(item)
+              res.json(result) 
+              })
+
           //post order to database
           
           app.post("/purchase",async(req,res)=>{
@@ -80,7 +135,13 @@ async function run() {
             res.json(purchase)
           })
 
-
+//delete
+          app.delete("/purchase/:id",async(req,res)=>{
+            const id=req.params.id
+          const item={_id:ObjectId(id)}
+        const purchase=await purchases.deleteOne(item)
+        res.json(purchase) 
+        })
           //get orders from database
           app.get("/purchase",async(req,res)=>{
             let query={}
@@ -92,6 +153,58 @@ async function run() {
            const purchase=await cursor.toArray()
            res.json(purchase)
           }) 
+
+          app.put("/purchase/:id",async(req,res)=>{
+            const id=req.params.id
+            const filter={_id:ObjectId(id)}
+            const item=req.body
+            const option={upsert:true}
+            const updateDocs={
+            $set:{
+             status:item.status
+            }
+            }
+            const purchase=await purchases.updateOne(filter,updateDocs,option)
+            res.json(purchase)
+                })
+
+          app.get("/myorder/:email",verifyToken,async(req,res)=>{
+            const email=req.params.email
+            // console.log(req.decodeUserEmail)
+            if(req.decodeUserEmail===email){
+          const query={email:email}
+          const purchase=await purchases.find(query).toArray()
+          res.json(purchase) 
+         }
+         else{
+           res.status(401).json({Message:"This is invalid authirized"})
+         }
+        })
+
+        app.get('/user/:email',async(req,res)=>{
+          const email=req.params.email
+          const query={email:email}
+          const user=await userData.findOne(query)
+          let isAdmin=false
+          if(user?.role==='Admin'){
+    isAdmin=true
+          }
+          res.json({Admin:isAdmin})
+        })
+
+        app.put("/user_admin/:id",async(req,res)=>{
+          const id=req.params.id
+          const filter={_id:ObjectId(id)}
+          const item=req.body
+          const option={upsert:true}
+          const updateDocs={
+          $set:{
+           role:item.role
+          }
+          }
+          const purchase=await userData.updateOne(filter,updateDocs,option)
+          res.json(purchase)
+              })
 
           app.get("/user_data",async(req,res)=>{
             const result=await userData.find({}).toArray()
