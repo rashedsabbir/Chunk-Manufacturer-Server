@@ -3,12 +3,19 @@ const cors=require("cors")
 const {MongoClient, ServerApiVersion}=require("mongodb")
 const ObjectId=require("mongodb").ObjectId
 require("dotenv").config();
+var admin = require("firebase-admin");
 
 const app=express()
 const port=process.env.PORT || 5000
 
 app.use(express.json())
 app.use(cors())
+
+//firebase admin authirized
+var serviceAccount = require("./chunk-manufacturer-firebase-adminsdk-xbfj8-ce6efb5ec8.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 //server running
 app.get("/",(req,res)=>{
