@@ -27,11 +27,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run() {
     try {
+
+      //create collections
         await client.connect();
         const database = client.db("Chunk-Manufacturer");
         const reviews = database.collection("reviews");
         const cars = database.collection("cars");
 
+        //get parts data from database
         app.get("/cars",async(req,res)=>{
             const count=await cars.find({}).count()
             const page=req.query.page
@@ -52,6 +55,7 @@ async function run() {
             })
           })
 
+          //getting single parts detailed description
           app.get("/cars/:id",async(req,res)=>{
             const id=req.params.id
             const query={_id:ObjectId(id)}
@@ -59,10 +63,14 @@ async function run() {
             res.json(result)
           })
 
+
+          //get all reviews from database
         app.get("/reviews",async(req,res)=>{
             const result=await reviews.find({}).toArray()
             res.json(result)
           })
+
+          //post reviews
           app.post("/reviews",async(req,res)=>{
             const item=req.body
             const result=await reviews.insertOne(item)
