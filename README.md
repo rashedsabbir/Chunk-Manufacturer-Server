@@ -1,6 +1,11 @@
 # Chunk Manufacturer
 
-##live link : https://chunk-manufacturer.web.app
+## [Live site](https://chunk-manufacturer.web.app)
+### [Parts Database](https://agile-journey-29324.herokuapp.com/cars)
+
+#### Admin Credentials:
+- Emaill: hasan@mail.com
+- Password : 12345678
 
 - Car Parts are available here.
 - user can give review
@@ -8,3 +13,4 @@
 - admin can make another user admin
 - payment system added
 - admin can update parts
+
